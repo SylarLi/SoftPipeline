@@ -2,9 +2,14 @@
 {
     private Matrix mMVP;
 
-    public Vector4 Process(Vector4 vertex)
+    private Matrix mN;
+
+    public IVertexOutputData Process(IVertexInputData input)
     {
-        return MVP * vertex;
+        IVertexOutputData output = new VertexOutputData();
+        output.clip = MVP * input.vertex;
+        output.viewNormal = N * input.normal;
+        return output;
     }
 
     public Matrix MVP
@@ -16,6 +21,19 @@
         set
         {
             mMVP = value;
+        }
+    }
+
+
+    public Matrix N
+    {
+        get
+        {
+            return mN;
+        }
+        set
+        {
+            mN = value;
         }
     }
 }

@@ -2,6 +2,8 @@
 {
     private Vector4[] mVertices;
 
+    private Vector3[] mNormals;
+
     private int[] mIndices;
 
     private Matrix mM;
@@ -15,6 +17,18 @@
         set
         {
             mVertices = value;
+        }
+    }
+
+    public Vector3[] normals
+    {
+        get
+        {
+            return mNormals;
+        }
+        set
+        {
+            mNormals = value;
         }
     }
 

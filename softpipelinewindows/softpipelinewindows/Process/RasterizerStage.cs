@@ -22,29 +22,28 @@ public class RasterizerStage : IRasterizerStage
 
     public IFragment[] Process(ITriangle triangle)
     {
-        Vector4[] clips = triangle.points;
-        Vector2[] screens = Array.ConvertAll<Vector4, Vector2>(
+        IVertexOutputData[] clips = triangle.points;
+        Vector2[] screens = Array.ConvertAll<IVertexOutputData, Vector2>(
             clips,
-            (Vector4 each) => new Vector2((each.x / each.w * 0.5f + 0.5f) * screenWidth, (each.y / each.w * 0.5f + 0.5f) * screenHeight)
+            (IVertexOutputData each) => new Vector2((each.clip.x / each.clip.w * 0.5f + 0.5f) * screenWidth, (each.clip.y / each.clip.w * 0.5f + 0.5f) * screenHeight)
         );
         int[][] iscreens = Array.ConvertAll<Vector2, int[]>(
-            screens, 
-            (Vector2 each) => new int[] { MathS.Min(mScreenWidth - 1, (int)each.x), MathS.Min(mScreenHeight - 1, (int)each.y) }
+            screens,
+            (Vector2 each) => new int[] { MathS.Clamp((int)each.x, 0, mScreenWidth - 1), MathS.Clamp((int)each.y, 0, mScreenHeight - 1) }
         );
         int[][] pixels = scan.ConvexFill(iscreens);
         if (pixels != null)
         {
-            Vector4[] points = Array.ConvertAll<int[], Vector4>(
+            IVertexOutputData[] v2fs = Array.ConvertAll<int[], IVertexOutputData>(
                 pixels,
                 (int[] each) => gour.Triangle(clips, screens, each)
             );
-            IFragment[] frags = new Fragment[points.Length];
-            for (int pIndex = 0; pIndex < points.Length; pIndex++)
+            IFragment[] frags = new Fragment[v2fs.Length];
+            for (int pIndex = 0; pIndex < v2fs.Length; pIndex++)
             {
                 IFragment frag = new Fragment();
-                frag.clip = points[pIndex];
                 frag.pixel = pixels[pIndex];
-                frag.color = fragShade.Process(points[pIndex]);
+                frag.color = fragShade.Process(v2fs[pIndex]);
                 frags[pIndex] = frag;
             }
             return frags;

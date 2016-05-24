@@ -8,42 +8,53 @@ public class GeometryStage : IGeometryStage
 
     private IClip clip;
 
+    private ICull cull;
+
     public GeometryStage()
     {
         vertexShade = new VertexShade();
         primitiveAssemble = new PrimitiveAssemble();
         clip = new Clip();
+        cull = new Cull();
     }
 
     public ITriangle[] Process(IDrawCall drawCall, ICamera camera)
     {
-        Queue<ITriangle> triangles = new Queue<ITriangle>();
-
         // vertex shade
         vertexShade.MVP = camera.P * camera.V * drawCall.M;
+        vertexShade.N = (camera.V * drawCall.M).Inverse().Transpose().Minor(3, 3);
         Vector4[] vertices = drawCall.vertices;
-
+        Vector3[] normals = drawCall.normals;
+        IVertexOutputData[] outputs = new VertexOutputData[vertices.Length];
         for (int vIndex = 0; vIndex < vertices.Length; vIndex++)
         {
-            vertices[vIndex] = vertexShade.Process(vertices[vIndex]);
+            IVertexInputData input = new VertexInputData();
+            input.vertex = vertices[vIndex];
+            input.normal = normals[vIndex];
+            outputs[vIndex] = vertexShade.Process(input);
         }
 
         // primitive assembly
-        ITriangle[] primitives = primitiveAssemble.Process(drawCall);
+        ITriangle[] primitives = primitiveAssemble.Process(outputs, drawCall.indices);
 
-        // clipping
+        Queue<ITriangle> triangles = new Queue<ITriangle>();
         for (int pIndex = 0; pIndex < primitives.Length; pIndex++)
         {
-            ITriangle[] ts = clip.Process(primitives[pIndex]);
-            if (ts != null)
+            // back-face culling
+            ITriangle t = cull.Process(primitives[pIndex]);
+            if (t != null)
             {
-                foreach (ITriangle t in ts)
+                // clipping
+                ITriangle[] ts = clip.Process(t);
+                if (ts != null)
                 {
-                    triangles.Enqueue(t);
+                    foreach (ITriangle each in ts)
+                    {
+                        triangles.Enqueue(each);
+                    }
                 }
             }
         }
-
         return triangles.ToArray();
     }
 }

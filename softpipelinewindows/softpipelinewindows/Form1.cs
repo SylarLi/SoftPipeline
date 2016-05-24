@@ -19,6 +19,8 @@ namespace softpipelinewindows
         private Pipeline pipeline;
         private Vector4[,] renderbuffer;
 
+        private Bitmap bmp;
+
         public Form1()
         {
             InitializeComponent();
@@ -41,11 +43,18 @@ namespace softpipelinewindows
             mesh = new Mesh();
             mesh.position = new Vector3(0, 0, 0);
             mesh.rotation = Quaternion.Eulers(0, 0, 0);
+            mesh.scale = new Vector3(2, 2, 2);
             mesh.vertices = new Vector3[] 
             { 
                 new Vector3(-4, 0, 0),
                 new Vector3(0, 3, 0),
                 new Vector3(4, 0, 0)
+            };
+            mesh.normals = new Vector3[]
+            {
+                new Vector3(0, 0, -1),
+                new Vector3(0, 0, -1),
+                new Vector3(0, 0, -1)
             };
             mesh.indices = new int[] 
             { 
@@ -59,19 +68,15 @@ namespace softpipelinewindows
             };
             app = new ApplicationStage();
             pipeline = new Pipeline(pictureBox1.Width, pictureBox1.Height);
+
+            bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+            pictureBox1.Image = bmp;
         }
 
         private void UpdateRender()
         {
             IDrawCall[] drawCalls = app.Process(scene);
             renderbuffer = pipeline.Process(drawCalls, camera);
-            pictureBox1.Refresh();
-        }
-
-        private void pictureBox1_Paint(object sender, PaintEventArgs e)
-        {
-            Graphics g = e.Graphics;
-            g.Clear(Color.Black);
             for (int y = 0; y < renderbuffer.GetLength(1); y++)
             {
                 int yr = pictureBox1.Height - 1 - y;
@@ -79,26 +84,28 @@ namespace softpipelinewindows
                 {
                     Vector4 oc = renderbuffer[x, y];
                     Color c = Color.FromArgb((int)(oc.x * 255), (int)(oc.y * 255), (int)(oc.z * 255));
-                    g.FillRectangle(new SolidBrush(c), new Rectangle(x, yr, 1, 1));
+                    bmp.SetPixel(x, yr, c);
                 }
             }
+            pictureBox1.Invalidate();
         }
 
         private void rotateX_Click(object sender, EventArgs e)
         {
-            mesh.rotation = Quaternion.Eulers(mesh.rotation.ToEulers() + new Vector3(10, 0, 0));
+            mesh.rotation *= Quaternion.Eulers(10, 0, 0);
             UpdateRender();
         }
 
         private void rotateY_Click(object sender, EventArgs e)
         {
-            mesh.rotation = Quaternion.Eulers(mesh.rotation.ToEulers() + new Vector3(0, 10, 0));
+            mesh.rotation *= Quaternion.Eulers(0, 10, 0);
             UpdateRender();
         }
 
         private void rotateZ_Click(object sender, EventArgs e)
         {
-            mesh.rotation = Quaternion.Eulers(mesh.rotation.ToEulers() + new Vector3(0, 0, 10));
+            mesh.rotation *= Quaternion.Eulers(0, 0, 10);
+            UpdateRender();
         }
     }
 }

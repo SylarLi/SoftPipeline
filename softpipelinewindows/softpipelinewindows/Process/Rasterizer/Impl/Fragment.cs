@@ -1,22 +1,8 @@
 ﻿public class Fragment : IFragment
 {
-    private Vector4 mClip;
-
     private int[] mPixel;
 
     private Vector4 mColor;
-
-    public Vector4 clip
-    {
-        get
-        {
-            return mClip;
-        }
-        set
-        {
-            mClip = value;
-        }
-    }
 
     public Vector4 color
     {

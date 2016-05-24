@@ -8,6 +8,21 @@ public sealed class MathS
 
     public static readonly float RadToDeg = (float)(180 / Math.PI);
 
+    public static int Ceil(float value)
+    {
+        return (int)Math.Ceiling(value);
+    }
+
+    public static int Floor(float value)
+    {
+        return (int)Math.Floor(value);
+    }
+
+    public static int Round(float value)
+    {
+        return (int)Math.Round(value);
+    }
+
     public static int Min(params int[] vals)
     {
         int min = int.MaxValue;
@@ -48,6 +63,19 @@ public sealed class MathS
         return max;
     }
 
+    public static int Clamp(int value, int min, int max)
+    {
+        if (value < min)
+        {
+            return min;
+        }
+        else if (value > max)
+        {
+            return max;
+        }
+        return value;
+    }
+
     public static long Clamp(long value, long min, long max)
     {
         if (value < min)
@@ -58,7 +86,7 @@ public sealed class MathS
         {
             return max;
         }
-        return (long)value;
+        return value;
     }
 
     public static float Clamp(float value, float min, float max)

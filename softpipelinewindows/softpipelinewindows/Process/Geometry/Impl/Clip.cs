@@ -27,7 +27,7 @@ public class Clip : IClip
         return ClipPoint(point);
     }
 
-    private ITriangle[] TriangleFun(Vector4[] polygon)
+    private ITriangle[] TriangleFun(IVertexOutputData[] polygon)
     {
         ITriangle[] result = null;
         if (polygon.Length >= 3)
@@ -37,7 +37,7 @@ public class Clip : IClip
             {
                 result[i] = new Triangle()
                 {
-                    points = new Vector4[] 
+                    points = new IVertexOutputData[] 
                     { 
                         polygon[0],
                         polygon[i + 1],
@@ -49,19 +49,23 @@ public class Clip : IClip
         return result;
     }
 
-    private Vector4[] ClipPolygon(Vector4[] polygon)
+    private IVertexOutputData[] ClipPolygon(IVertexOutputData[] polygon)
     {
         for (int planeIndex = 0; planeIndex < 6; planeIndex++)
         {
-            List<Vector4> points = new List<Vector4>();
+            List<IVertexOutputData> vdatas = new List<IVertexOutputData>();
             int vi = planeIndex / 2;
             int sign = planeIndex % 2 == 0 ? 1 : -1;
             for (int pointIndex = 0; pointIndex < polygon.Length; pointIndex++)
             {
                 int index0 = pointIndex;
                 int index1 = pointIndex == polygon.Length - 1 ? 0 : pointIndex + 1;
-                Vector4 p0 = polygon[index0];
-                Vector4 p1 = polygon[index1];
+                IVertexOutputData v0 = polygon[index0];
+                IVertexOutputData v1 = polygon[index1];
+                Vector4 p0 = v0.clip;
+                Vector4 p1 = v1.clip;
+                Vector3 n0 = v0.viewNormal;
+                Vector3 n1 = v1.viewNormal;
                 float d0 = (p0[vi] + p0.w * sign) * p0.w;
                 float d1 = (p1[vi] + p1.w * sign) * p1.w;
                 float ds = d0 * d1;
@@ -70,24 +74,28 @@ public class Clip : IClip
                     // 边与裁剪面相交
                     float u = d0 / (d0 - d1);
                     Vector4 p = p0 + (p1 - p0) * u;
+                    Vector3 n = n0 + (n1 - n0) * u;
                     if (sign * d0 > 0)
                     {
-                        points.Add(p0);
+                        vdatas.Add(v0);
                     }
-                    points.Add(p);
+                    IVertexOutputData data = new VertexOutputData();
+                    data.clip = p;
+                    data.viewNormal = n;
+                    vdatas.Add(data);
                 }
                 else if (MathS.Abs(d0) < Threshold)
                 {
                     // p0点在裁剪面上
-                    points.Add(p0);
+                    vdatas.Add(v0);
                 }
                 else if (sign * d0 > 0 && sign * d1 >= 0)
                 {
                     // 边完全位于裁剪面之内
-                    points.Add(p0);
+                    vdatas.Add(v0);
                 }
             }
-            polygon = points.ToArray();
+            polygon = vdatas.ToArray();
         }
         return polygon;
     }

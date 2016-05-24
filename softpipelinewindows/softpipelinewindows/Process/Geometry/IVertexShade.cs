@@ -1,6 +1,8 @@
 ﻿public interface IVertexShade
 {
-    Vector4 Process(Vector4 vertex);
+    IVertexOutputData Process(IVertexInputData input);
 
     Matrix MVP { get; set; }
+
+    Matrix N { get; set; }
 }

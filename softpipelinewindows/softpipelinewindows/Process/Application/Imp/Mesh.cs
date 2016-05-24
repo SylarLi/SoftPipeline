@@ -2,6 +2,8 @@
 {
     private Vector3[] mVertices;
 
+    private Vector3[] mNormals;
+
     private int[] mIndices;
 
     public Mesh() : base()
@@ -20,6 +22,18 @@
             mVertices = value;
         }
     }
+
+    public Vector3[] normals
+    {
+        get
+        {
+            return mNormals;
+        }
+        set
+        {
+            mNormals = value;
+        }
+    } 
 
     public int[] indices
     {

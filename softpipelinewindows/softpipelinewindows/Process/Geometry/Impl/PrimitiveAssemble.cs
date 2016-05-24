@@ -3,20 +3,18 @@ using System.Collections.Generic;
 
 public class PrimitiveAssemble : IPrimitiveAssemble
 {
-    public ITriangle[] Process(IDrawCall drawCall)
+    public ITriangle[] Process(IVertexOutputData[] vdatas, int[] indices)
     {
         Queue<ITriangle> primitives = new Queue<ITriangle>();
-        Vector4[] vertices = drawCall.vertices;
-        int[] indices = drawCall.indices;
         for (int iIndex = 2; iIndex < indices.Length; iIndex += 3)
         {
             ITriangle t = new Triangle()
             {
-                points = new Vector4[]
+                points = new IVertexOutputData[]
                     {
-                        vertices[indices[iIndex - 2]],
-                        vertices[indices[iIndex - 1]],
-                        vertices[indices[iIndex]],
+                        vdatas[indices[iIndex - 2]],
+                        vdatas[indices[iIndex - 1]],
+                        vdatas[indices[iIndex]],
                     }
             };
             primitives.Enqueue(t);

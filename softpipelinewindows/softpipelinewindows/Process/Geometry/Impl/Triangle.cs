@@ -1,8 +1,8 @@
 ﻿public class Triangle : ITriangle
 {
-    private Vector4[] mPoints;
+    private IVertexOutputData[] mPoints;
 
-    public Vector4[] points
+    public IVertexOutputData[] points
     {
         get
         {

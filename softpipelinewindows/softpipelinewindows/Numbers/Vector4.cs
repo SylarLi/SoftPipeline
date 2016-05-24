@@ -195,6 +195,14 @@
         }
     }
 
+    public static Vector4 identity
+    {
+        get
+        {
+            return new Vector4(0, 0, 0, 1);
+        }
+    }
+
     public static float Dot(Vector4 lhs, Vector4 rhs)
     {
         return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w;

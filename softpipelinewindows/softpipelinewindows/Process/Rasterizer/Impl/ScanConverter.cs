@@ -81,43 +81,41 @@ public class ScanConverter : IScanConverter
                         et.RemoveAt(0);
                     }
                 }
-                for (int aIndex = 0; aIndex < aet.Count; aIndex++)
+                for (int aIndex = aet.Count - 1; aIndex >= 0; aIndex--)
                 {
-                    if (aet[aIndex].yMax < aet.yMin)
+                    if (aet[aIndex].yMax <= aet.yMin)
                     {
                         aet.RemoveAt(aIndex);
-                        aIndex -= 1;
                     }
-                    else 
+                }
+                for (int aIndex = 0; aIndex < aet.Count; aIndex++)
+                {
+                    if (aIndex % 2 == 0 && 
+                        aIndex < aet.Count - 1)
                     {
-                        if (aIndex % 2 == 0 && 
-                            aIndex < aet.Count - 1)
+                        float left = aet[aIndex].xMin;
+                        float right = aet[aIndex + 1].xMin;
+                        if (topy == -1 || aet.yMin != topy || left >= topx2 || right <= topx1)
                         {
-                            float left = aet[aIndex].xMin;
-                            float right = aet[aIndex + 1].xMin;
-                            if (topy == -1 || aet.yMin != topy || left >= topx2 || right <= topx1)
+                            // 以上判断是为了排除top horizontal edge
+                            int ileft = MathS.Floor(left);
+                            int iright = MathS.Floor(right);
+                            for (int ixMin = ileft; ixMin <= iright; ixMin += 1)
                             {
-                                // 以上判断是为了排除top horizontal edge
-                                for (float xMin = left; xMin <= right; xMin += 1)
+                                if (ixMin >= left && ixMin < right)
                                 {
-                                    int ixMin = (int)xMin;
-                                    if ((xMin == left && ixMin == left) ||
-                                        ((xMin >= right) && ixMin < right) ||
-                                        (ixMin > left && ixMin < right))
-                                    {
-                                        // 以上判断是为了排除像素点刚好在rightEdge的情况
-                                        result.Enqueue(new int[] { ixMin, aet.yMin });
-                                    }
+                                    // 以上判断是为了排除像素点刚好在rightEdge的情况
+                                    result.Enqueue(new int[] { ixMin, aet.yMin });
                                 }
                             }
-                            aet[aIndex].xMin += aet[aIndex].m;
-                            aet[aIndex + 1].xMin += aet[aIndex + 1].m;
-                            if (aet[aIndex].xMin > aet[aIndex + 1].xMin)
-                            {
-                                EdgeNode temp = aet[aIndex];
-                                aet[aIndex] = aet[aIndex + 1];
-                                aet[aIndex + 1] = temp;
-                            }
+                        }
+                        aet[aIndex].xMin += aet[aIndex].m;
+                        aet[aIndex + 1].xMin += aet[aIndex + 1].m;
+                        if (aet[aIndex].xMin > aet[aIndex + 1].xMin)
+                        {
+                            EdgeNode temp = aet[aIndex];
+                            aet[aIndex] = aet[aIndex + 1];
+                            aet[aIndex + 1] = temp;
                         }
                     }
                 }
@@ -201,6 +199,7 @@ public class ScanConverter : IScanConverter
                     else if (yMin == cyMin)
                     {
                         this[tIndex].AddNode(node);
+                        break;
                     }
                 }
             }
@@ -213,6 +212,7 @@ public class ScanConverter : IScanConverter
                 if (this[tIndex].yMin == yMin)
                 {
                     this[tIndex].RemoveNode(node);
+                    break;
                 }
             }
         }

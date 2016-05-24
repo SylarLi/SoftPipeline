@@ -22,6 +22,15 @@ public class Pipeline
 
     public Vector4[,] Process(IDrawCall[] drawCalls, ICamera camera)
     {
+        // Clear
+        for (int y = 0; y < mFrameBuffer.renderBuffer.GetLength(1); y++)
+        {
+            for (int x = 0; x < mFrameBuffer.renderBuffer.GetLength(0); x++)
+            {
+                mFrameBuffer.renderBuffer[x, y] = Vector4.identity;
+            }
+        }
+        // Render
         for (int dcIndex = 0; dcIndex < drawCalls.Length; dcIndex++)
         {
             ITriangle[] triangles = geometryStage.Process(drawCalls[dcIndex], camera);

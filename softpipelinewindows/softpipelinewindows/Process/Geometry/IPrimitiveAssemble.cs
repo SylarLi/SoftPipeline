@@ -1,4 +1,4 @@
 ﻿public interface IPrimitiveAssemble
 {
-    ITriangle[] Process(IDrawCall drawCall);
+    ITriangle[] Process(IVertexOutputData[] vdatas, int[] indices);
 }
